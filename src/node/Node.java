@@ -201,18 +201,18 @@ public class Node extends UnicastRemoteObject implements IProposer, IAcceptor, I
       this.logger.log(this + " failed (" + random + " < " + FAILURE_RATE + ")");
       throw new RemoteException(this + " failed");
     } else {
-      if (this.acceptedValue != null) { // already accepted a value
-        this.logger.log("Already accepted " + this.acceptedValue + " associated with the sequence number " + this.acceptedSeqNum);
-        return new Promise(-1, this.acceptedSeqNum, this.acceptedValue);
-      } else {
-        if (sequenceNumber > this.highestSeenSeqNum) { // proposal sequence number is the highest seen so far
+      if (sequenceNumber > this.highestSeenSeqNum) { // proposal sequence number is the highest seen so far
+        if (this.acceptedValue != null) { // already accepted a value
+          this.logger.log("Already accepted " + this.acceptedValue + " associated with the sequence number " + this.acceptedSeqNum);
+          return new Promise(1, this.acceptedSeqNum, this.acceptedValue);
+        } else {
           this.logger.log("Sent promise message (" + sequenceNumber + " > " + this.highestSeenSeqNum + ")");
           this.highestSeenSeqNum = sequenceNumber;
           return new Promise(1);
-        } else {
-          this.logger.log("Did not send promise message (" + sequenceNumber + " <= " + this.highestSeenSeqNum + ")");
-          return new Promise(0);
         }
+      } else {
+        this.logger.log("Did not send promise message (" + sequenceNumber + " <= " + this.highestSeenSeqNum + ")");
+        return new Promise(0);
       }
     }
   }
@@ -259,6 +259,7 @@ public class Node extends UnicastRemoteObject implements IProposer, IAcceptor, I
     this.logger.log(acceptedValue.toString() + " learned and executed");
     this.acceptedValue = null;
     this.highestSeenSeqNum = sequenceNumber;
+    this.acceptedSeqNum = -Long.MAX_VALUE;
   }
 
   /**
@@ -278,11 +279,10 @@ public class Node extends UnicastRemoteObject implements IProposer, IAcceptor, I
     for (IAcceptor acceptor : this.acceptors) { // gather promises
       try {
         Promise promise = (Promise) acceptor.prepare(sequenceNumber);
-        if (promise.vote == -1) { // acceptor already accepted anther proposal value
+        if (promise.value != null) { // acceptor already accepted anther proposal value
           alreadyAcceptedValues.put(promise.sequenceNumber, promise.value);
-        } else {
-          promisesCount += promise.vote;
         }
+        promisesCount += promise.vote;
       } catch (RemoteException e) {
         this.logger.log(acceptor + " failed during the propose phase");
       }
