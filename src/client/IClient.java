@@ -17,12 +17,12 @@ public interface IClient {
   void prePopulate();
 
   /**
-   * Starts the client.
+   * Starts this client.
    */
   void execute();
 
   /**
-   * Stops this client and the servers.
+   * Stops this client and the nodes.
    */
   void shutdown();
 }

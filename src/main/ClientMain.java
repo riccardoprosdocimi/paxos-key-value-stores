@@ -3,17 +3,17 @@ package main;
 import client.Client;
 
 /**
- * The type ClientMain represents the entry point of the RMI client using the two phase commit protocol.
+ * The ClientMain class represents the entry point of the RMI client using the Paxos algorithm.
  */
 public class ClientMain {
   /**
-   * The entry point of application.
+   * The entry point of the RMI client using the Paxos algorithm.
    *
    * @param args the input arguments
    */
   public static void main(String[] args) {
     try {
-      if (args.length != 2) {
+      if (args.length != 2) { // hostname and port
         System.err.println("Usage: java main.ClientMain <hostname> <port>");
         System.exit(1);
       } else {
@@ -23,7 +23,6 @@ public class ClientMain {
           System.exit(1);
         } else {
           Client client = new Client(args[0], portNumber);
-          //client.prePopulate(); // pre-populate the replicas
           client.execute(); // start interactive mode
         }
       }

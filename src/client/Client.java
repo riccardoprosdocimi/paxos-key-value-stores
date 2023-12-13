@@ -8,11 +8,13 @@ import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-
 import node.IKVStore;
 import utils.ILogger;
 import utils.Logger;
 
+/**
+ * The Client class represents a client that communicates via Remote Method Invocation (RMI) using the Paxos algorithm.
+ */
 public class Client implements IClient {
   private static final String LOGGER_NAME = "ClientLogger";
   private static final String LOG_FILE_NAME = "ClientLog.log";
@@ -22,6 +24,12 @@ public class Client implements IClient {
   private final Scanner scanner;
   private IKVStore server;
 
+  /**
+   * Constructor to create a Client instance.
+   *
+   * @param host the hostname
+   * @param port the port number of the node
+   */
   public Client(String host, int port) {
     // Timeout mechanism
     System.setProperty("sun.rmi.transport.tcp.responseTimeout", "2000");
@@ -167,7 +175,7 @@ public class Client implements IClient {
   }
 
   /**
-   * Starts the client.
+   * Starts this client.
    */
   @Override
   public void execute() {
@@ -177,13 +185,21 @@ public class Client implements IClient {
       String request = this.getRequest(); // get the user request
       if (request.equalsIgnoreCase("shutdown") || request.equalsIgnoreCase("stop")) { // if the user wants to quit
         isRunning = false; // prepare the shutdown process
+      } else if (request.equalsIgnoreCase("pp")) { // pre-populate the nodes
+        this.prePopulate();
       } else {
         System.out.println(this.parseRequest(request)); // process the request and output the result
       }
     }
-    this.shutdown(); // shut down the servers and the client
+    this.shutdown(); // shut down the nodes and the client
   }
 
+  /**
+   * Retrieves the value of a key.
+   *
+   * @param key the word to be translated
+   * @return the translation
+   */
   public String get(String key) {
     Map<String, Integer> valuesToFreq = new HashMap<>(NUM_NODES);
     for (int nodeId = 0; nodeId < NUM_NODES; nodeId++) {
@@ -207,6 +223,8 @@ public class Client implements IClient {
     }
     for (Map.Entry<String, Integer> entry : valuesToFreq.entrySet()) {
       if (entry.getValue() > NUM_NODES / 2) {
+        System.out.println("Majority threshold: " + NUM_NODES / 2);
+        this.logger.log("The majority of nodes (" + entry.getValue() + " / " + NUM_NODES + ") agreed on a value");
         return entry.getKey();
       }
     }
@@ -214,7 +232,7 @@ public class Client implements IClient {
   }
 
   /**
-   * Stops this client and the servers.
+   * Stops this client and the nodes.
    */
   @Override
   public void shutdown() {
@@ -226,7 +244,7 @@ public class Client implements IClient {
         String url = "rmi://localhost:" + port + "/KVStore" + portStr.charAt(portStr.length() - 1); // NOTE: here is assumed host is always localhost
         try {
           IKVStore node = (IKVStore) Naming.lookup(url);
-          node.shutdown(); // shut down all the servers
+          node.shutdown(); // shut down all the nodes
         } catch (NotBoundException nbe) { // url not bound
           this.logger.log("Couldn't connect to node with ID " + nodeId + " at port " + port + " (shutdown): " + url + " not bound");
           System.err.println("Couldn't connect to node with ID " + nodeId + " at port " + port + " (shutdown): " + url + " not bound.\n" + nbe.getMessage());

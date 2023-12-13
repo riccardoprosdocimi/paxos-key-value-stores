@@ -11,14 +11,14 @@ import node.ILearner;
 import node.Node;
 
 /**
- * The PaxosServerCreator class is responsible for creating and binding the Paxos servers
- * within the RMI registry. It also configures the acceptors and learners for each server.
+ * The PaxosServerCreator class is responsible for creating and binding the Paxos servers within the RMI registry.
+ * It also configures the acceptors and learners for each server.
  */
 public class PaxosServerCreator {
   /**
    * The main method to launch the creation and binding process of the Paxos servers.
    *
-   * @param args command-line arguments (unused in this context).
+   * @param args command-line arguments (unused in this context)
    */
   public static void main(String[] args) {
     try {
