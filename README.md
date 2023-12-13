@@ -9,7 +9,7 @@
 1) Open up two terminal windows and navigate to `/Project4/src`
 2) In one window, type `javac node/*.java utils/*.java main/PaxosServerCreator.java` (hit <kbd>↩</kbd>), followed by `java main.PaxosServerCreator` (hit <kbd>↩</kbd>)
 3) The nodes are now running
-4) In the other window, type `javac client/*.java utils/*.java main/ClientMain.java` (hit <kbd>↩</kbd>), followed by `java main.ClientMain` (hit <kbd>↩</kbd>)
+4) In the other window, type `javac client/*.java utils/*.java main/ClientMain.java` (hit <kbd>↩</kbd>), followed by `java main.ClientMain <hostname> <port>` (hit <kbd>↩</kbd>)
 5) The client is now running
 6) The predefined protocol is:
     * `PUT:key:value`(hit <kbd>↩</kbd>)
